@@ -38,3 +38,5 @@ Strange? it is not like that... because in the code first pass the number 3, and
 - `rcx`: Fourth argument
 - `r8`: Fifth argument
 - `r9`: Sixth argument
+
+The reason it appears to “pass 9 first” is that the registers are loaded in the order specified in the assembly code, but the numbers correspond to the arguments you have provided.
