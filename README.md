@@ -1,2 +1,11 @@
 # Calling-Conventions
-Calling Conventions x86_64
+
+To compile binaries:
+
+```shell
+$ gcc script.c -o a
+$ obdjump -M intel -D a
+```
+
+
+
