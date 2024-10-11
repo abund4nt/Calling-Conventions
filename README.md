@@ -69,8 +69,7 @@ En el desensamblado anterior vemos que se pasan los valores `0xdeadbeef`, `0xdea
 
 > Es crucial notar que los valores movidos a estos registros están representados en 32 bits, lo que se indica mediante el uso de los prefijos `e` (`edx`, `esi`, `edi`). Esto refleja cómo se manejan los datos de diferentes tamaños en el contexto de la memoria del programa.
 
-
-Todo bien hasta ahora, pero que pasa si pasamos mas de 6 argumentos? para esto programe el siguiente codigo.
+Podras decir "Mmmm okay.. se entiende hasta ahora" ¿pero que pasa si pongo mas argumentos? Para eso programe el siguiente codigo.
 
 ```c
 //gcc source.c -o vuln-32 -no-pie -fno-stack-protector -m32
@@ -92,7 +91,7 @@ int main() {
 }
 ```
 
-Muy parecido al primero pero con mas argumentos, en la primera llamada a `vuln` son los parametros correctos, y en la segunda los incorrectos. Utilizando `radare2` veremos el desensamblado de la funcion `main`.
+Muy parecido al primero pero con mas argumentos (se compila utilizando las mismas flags). En la primera llamada a `vuln` son los parametros correctos, y en la segunda los incorrectos. Utilizando `radare2` veremos el desensamblado de la funcion `main`. 
 
 ```asm
             ; DATA XREF from entry0 @ 0x401068
