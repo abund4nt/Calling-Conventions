@@ -126,3 +126,6 @@ Muy parecido al primero pero con mas argumentos (se compila utilizando las misma
 
 Vemos que cuando ya no tiene mas argumentos utiliza la instruccion `push`. Esta instruccion es fundamental cuando necesitas pasar más argumentos de los que pueden ser manejados por los registros disponibles en la convención de llamada. Como sabemos en x86-64, los primeros seis argumentos se pasan a través de los registros (`rdi`, `rsi`, `rdx`, `rcx`, `r8`, `r9`). Sin embargo, si necesitas pasar más argumentos o si algunos de los valores son más grandes que lo que puede contener un registro de 32 bits, puedes utilizar push para colocarlos en la pila. Espero que con los dos ejemplos anteriores te haya quedado claro a nivel teorico como funcionan las convenciones de llamadas.
 
+## Practica con desafios
+
+Para la practica vamos a resolver el desafio `Params` de ForeverCTF y por ultimo el las notas de Ironstones, lo podemos descargar en el siguiente [enlace](https://ir0nstone.gitbook.io/notes/binexp/stack/return-oriented-programming/exploiting-calling-conventions).
