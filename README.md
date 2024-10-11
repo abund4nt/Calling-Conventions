@@ -56,7 +56,7 @@ Utilizaremos `radare2` para desemsamblar la funcion `main` y observar como se re
 └           0x0040119e      c3             ret
 ```
 
-En el desensamblado anterior, la instrucción `mov` se utiliza para cargar los valores que se pasarán como argumentos a la función `vuln`. Los registros utilizados son `rdi`, `rsi` y `rdx`, que son los registros de 64 bits designados para recibir los parámetros en la convención de llamada x86-64:
+En el desensamblado anterior vemos que se pasan los valores `0xdeadbeef`, `0xdeadc0de` y `0xc0ded00d` a los registros `edi`, `esi`, `edx` utilizando la instruccion `mov`, esta instruccion se utiliza para cargar los valores que se pasarán como argumentos a la función `vuln`. Los registros utilizados son `rdi`, `rsi` y `rdx`, que son los registros de 64 bits designados para recibir los parámetros en la convención de llamada x86-64, este es el orden.
 
 ```
 - rdi: First argument
@@ -67,4 +67,4 @@ En el desensamblado anterior, la instrucción `mov` se utiliza para cargar los v
 - r9: Sixth argument
 ```
 
-Es crucial notar que los valores movidos a estos registros están representados en 32 bits, lo que se indica mediante el uso de los prefijos `e` (`edx`, `esi`, `edi`). Esto refleja cómo se manejan los datos de diferentes tamaños en el contexto de la memoria del programa.
+> Es crucial notar que los valores movidos a estos registros están representados en 32 bits, lo que se indica mediante el uso de los prefijos `e` (`edx`, `esi`, `edi`). Esto refleja cómo se manejan los datos de diferentes tamaños en el contexto de la memoria del programa.
