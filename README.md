@@ -1,10 +1,8 @@
 # Calling Conventions
 
-Las *Calling conventions* son un conjunto de reglas que determinan como las funciones de un programa interactuan con la memoria y los registros del procesador al ser llamadas y devolver valores. Existen diferentes convenciones como `cdecl`, `stdcall` y `fastcall`, cada una con sus propias caracteristicas y usos. (Te invito a investigar cada una en detalle, en este repositorio se hara mas enfasis en su aprendizaje para la explotacion de binarios).
+Este repositorio se enfoca en el estudio de las convenciones de llamada en arquitecturas de 64 bits, un aspecto esencial en la programación y la explotación binaria. Estas convenciones definen las reglas para el paso de parámetros a las funciones y la gestión de las pilas de llamadas. Comprender estas normas es fundamental para quienes desean adentrarse en la ingeniería inversa y la explotación de vulnerabilidades en sistemas de bajo nivel. A través de este repositorio, se pretende facilitar el aprendizaje de estos conceptos.
 
-En explotacion de binarios las *calling conventions* son fundamentales por que permiten al atacante predecir como interactuan las funciones con la memoria y los registros del procesador. Comprender estas convenciones ayuda a manipular la pila o los registros de manera correcta, lo que es crucial para que nuestro exploit funcione.
-
-Para entender esto utilizaremos el siguiente codigo de ejemplo.
+Comenzaremos compilando y analizando el siguiente codigo.
 
 ```c
 #include <stdio.h>
@@ -23,12 +21,39 @@ int main() {
 }
 ```
 
-Lo compilaremos utilizando las siguientes flags.
+Vemos que define una funcion `vuln` con un condicional if, que chequea si los primeros tres parametros ingresados son iguales a `0xdeadbeef`, `0xdeadc0de`, `0xc0ded00d`. Si la condicion anterior se cumple muestra `Nice!` por pantalla, de lo contrario muestra `Not nice!`. Luego define la funcion `main` que llama a la funcion `vuln` dos veces seguidas, una con los parametros esperados y otra con parametros no esperamos. Para probar este codigo lo compilaremos utilizando las siguientes flags.
 
 ```shell
 $ gcc source.c -o vuln-64 -no-pie -fno-stack-protector
 ```
 
+Al ejecutar el binario vemos que por pantalla muestra `Nice` y `Not nice!`. Era el resultado que nos esperabamos.
+
+```shell
+$ ./vuln-64
+Nice!
+Not nice!
+```
+
+Utilizando `radare2` vamos a imprimir el desensamblado de la funcion `main`, tenemos lo siguiente.
+
+```asm
+            ; DATA XREF from entry0 @ 0x40105d
+┌ 51: int main (int argc, char **argv, char **envp);
+│           0x0040116c      55             push rbp
+│           0x0040116d      4889e5         mov rbp, rsp
+│           0x00401170      ba0dd0dec0     mov edx, 0xc0ded00d
+│           0x00401175      bedec0adde     mov esi, 0xdeadc0de
+│           0x0040117a      bfefbeadde     mov edi, 0xdeadbeef
+│           0x0040117f      e89effffff     call sym.vuln
+│           0x00401184      ba10efcdab     mov edx, 0xabcdef10
+│           0x00401189      be78563412     mov esi, 0x12345678         ; 'xV4\x12'
+│           0x0040118e      bfdec0adde     mov edi, 0xdeadc0de
+│           0x00401193      e88affffff     call sym.vuln
+│           0x00401198      b800000000     mov eax, 0
+│           0x0040119d      5d             pop rbp
+└           0x0040119e      c3             ret
+```
 
 The binary is compiled without any flag using `gcc`, to display the dump we will use `objdump`.
 
