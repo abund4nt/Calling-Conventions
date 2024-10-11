@@ -128,4 +128,4 @@ Vemos que cuando ya no tiene mas argumentos utiliza la instruccion `push`. Esta 
 
 ## Practica con desafios
 
-Para la practica vamos a resolver el desafio `Params` de ForeverCTF y por ultimo el las notas de Ironstones, lo podemos descargar en el siguiente [enlace](https://ir0nstone.gitbook.io/notes/binexp/stack/return-oriented-programming/exploiting-calling-conventions).
+Para la practica vamos a resolver el desafio `Params` de [ForeverCTF](https://ir0nstone.gitbook.io/notes/binexp/stack/return-oriented-programming/exploiting-calling-conventions) y por ultimo el `expliting-with-params` de las notas de [ir0nstone](https://ir0nstone.gitbook.io/notes/binexp/stack/return-oriented-programming/exploiting-calling-conventions).
