@@ -35,7 +35,7 @@ Nice!
 Not nice!
 ```
 
-Utilizando `radare2` vamos a imprimir el desensamblado de la funcion `main`, tenemos lo siguiente.
+Utilizando `radare2` vamos a imprimir el desensamblado de la funcion `main` para ver como esta llamando a las funciones, tenemos lo siguiente.
 
 ```asm
             ; DATA XREF from entry0 @ 0x40105d
@@ -54,6 +54,19 @@ Utilizando `radare2` vamos a imprimir el desensamblado de la funcion `main`, ten
 │           0x0040119d      5d             pop rbp
 └           0x0040119e      c3             ret
 ```
+
+En el fragmento de código anterior, la instrucción `mov` se utiliza para cargar los valores que se pasarán como parámetros a la función `vuln`. Los registros que se utilizan son `rdx`, `rsi` y `rdi`, que son los registros de 64 bits encargados de recibir los argumentos en la convención de llamada de x86-64. Este es el orden de registros a tener en cuenta.
+
+```
+- rdi: First argument
+- rsi: Second argument
+- rdx: Third argument
+- rcx: Fourth argument
+- r8: Fifth argument
+- r9: Sixth argument
+```
+
+Si te fijas los valores que se mueven a estos registros están representados en 32 bits, como se observa en las instrucciones, donde se utilizan los prefijos `e` para indicar que se están cargando valores de 32 bits en registros de 64 bits. Esto es importante, ya que refleja cómo se manejan los datos en diferentes tamaños de memoria dentro del contexto del programa.
 
 The binary is compiled without any flag using `gcc`, to display the dump we will use `objdump`.
 
