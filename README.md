@@ -1,4 +1,34 @@
-# Calling-Conventions
+# Calling Conventions
+
+Las *Calling conventions* son un conjunto de reglas que determinan como las funciones de un programa interactuan con la memoria y los registros del procesador al ser llamadas y devolver valores. Existen diferentes convenciones como `cdecl`, `stdcall` y `fastcall`, cada una con sus propias caracteristicas y usos. (Te invito a investigar cada una en detalle, en este repositorio se hara mas enfasis en su aprendizaje para la explotacion de binarios).
+
+En explotacion de binarios las *calling conventions* son fundamentales por que permiten al atacante predecir como interactuan las funciones con la memoria y los registros del procesador. Comprender estas convenciones ayuda a manipular la pila o los registros de manera correcta, lo que es crucial para que nuestro exploit funcione.
+
+Para entender esto utilizaremos el siguiente codigo de ejemplo.
+
+```c
+#include <stdio.h>
+
+void vuln(int check, int check2, int check3) {
+    if(check == 0xdeadbeef && check2 == 0xdeadc0de && check3 == 0xc0ded00d) {
+        puts("Nice!");
+    } else {
+        puts("Not nice!");
+    }
+}
+
+int main() {
+    vuln(0xdeadbeef, 0xdeadc0de, 0xc0ded00d);
+    vuln(0xdeadc0de, 0x12345678, 0xabcdef10);
+}
+```
+
+Lo compilaremos utilizando las siguientes flags.
+
+```shell
+$ gcc source.c -o vuln-64 -no-pie -fno-stack-protector
+```
+
 
 The binary is compiled without any flag using `gcc`, to display the dump we will use `objdump`.
 
