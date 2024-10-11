@@ -1,6 +1,6 @@
 # Calling Conventions
 
-Este repositorio se enfoca en el estudio de las convenciones de llamada en arquitecturas de 64 bits, un aspecto esencial en la programación y la explotación binaria. Estas convenciones definen las reglas para el paso de parámetros a las funciones y la gestión de las pilas de llamadas. Comprender estas normas es fundamental para quienes desean adentrarse en la ingeniería inversa y la explotación de vulnerabilidades en sistemas de bajo nivel. A través de este repositorio, se pretende facilitar el aprendizaje de estos conceptos.
+Este repositorio se enfoca en el estudio de las convenciones de llamada en arquitecturas de 64 bit. Estas convenciones definen las reglas para el paso de parámetros a las funciones y la gestión de las pilas de llamadas. Comprender estas convenciones es fundamental para quienes desean adentrarse en la ingeniería inversa y/o explotación de vulnerabilidades en sistemas de bajo nivel. A través de este repositorio se pretende facilitar el aprendizaje de estos conceptos.
 
 Comenzaremos compilando y analizando el siguiente codigo.
 
