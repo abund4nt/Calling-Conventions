@@ -4,8 +4,6 @@ This repository focuses on the study of calling conventions on 64-bit architectu
 
 We will start by compiling and analyzing the following code.
 
-Translated with DeepL.com (free version)
-
 ```c
 #include <stdio.h>
 
